@@ -92,22 +92,29 @@ def Alt_high_GTP(t):
     """
     return c1/d1*np.exp(-t/d1) + c2/d2*np.exp(-t/d2)
 
-def CO2_rf(emission, years, tstep=0.01, kind='linear'): 
+def CO2_rf(emission, years, tstep=0.01, kind='linear', emiss_type='sustained'): 
     """Transforms an array of CO2 emissions into radiative forcing with user-
     defined time-step.
     
     emission: an array of emissions, should be same size as years
     years: an array of years at which the emissions take place
-    tstep: time step to be used in the calculations
+    : time step to be used in the calculations
     kind: the type of interpolation to use; can be linear or cubic
+    emiss_type: 'sustained' or 'pulse' - if 'pulse', then the emission values are
+    divided by . this allows a pulse of 1 kg in the first value of the array to
+    represent a full kg of emission, and 1 kg in all values associated with the first
+    year to also represent a full kg when 'sustained'.
     """
 #emission is a series of emission numbers, years should match up with it
     if min(years) > 0:
         years = years - min(years)
     
+    if emiss_type == 'pulse':
+        emission /= tstep
+    
     end = max(years) 
     f = interp1d(years, emission, kind=kind)
-    time = np.linspace(years[0], end, end/tstep + 1)    
+    time = np.linspace(years[0], end, end/ + 1)    
     inter_emissions = f(time)
     atmos = np.resize(fftconvolve(CO2_AR5(time), inter_emissions), time.size) * tstep
     rf = atmos * co2_re
@@ -118,22 +125,29 @@ def CO2_rf(emission, years, tstep=0.01, kind='linear'):
         
     return rf[fil]
 
-def CO2_rate(emission, years, tstep=0.01, kind='linear'): 
+def CO2_rate(emission, years, tstep=0.01, kind='linear', emiss_type='sustained'): 
     """Transforms an array of CO2 emissions into radiative forcing with user-
     defined time-step.
     
     emission: an array of emissions, should be same size as years
     years: an array of years at which the emissions take place
-    tstep: time step to be used in the calculations
+    : time step to be used in the calculations
     kind: the type of interpolation to use; can be linear or cubic
+    emiss_type: 'sustained' or 'pulse' - if 'pulse', then the emission values are
+    divided by . this allows a pulse of 1 kg in the first value of the array to
+    represent a full kg of emission, and 1 kg in all values associated with the first
+    year to also represent a full kg when 'sustained'.
     """
 #emission is a series of emission numbers, years should match up with it
     if min(years) > 0:
         years = years - min(years)
     
+    if emiss_type == 'pulse':
+        emission /= tstep
+    
     end = max(years) 
     f = interp1d(years, emission, kind=kind)
-    time = np.linspace(years[0], end, end/tstep + 1)    
+    time = np.linspace(years[0], end, end/ + 1)    
     inter_emissions = f(time)
     atmos = np.resize(fftconvolve(CO2_AR5(time), inter_emissions), time.size) * tstep
     rf = atmos * co2_re
@@ -146,22 +160,29 @@ def CO2_rate(emission, years, tstep=0.01, kind='linear'):
         
     return rate[fil]
 
-def CO2_crf(emission, years, tstep=0.01, kind='linear'): 
+def CO2_crf(emission, years, tstep=0.01, kind='linear', emiss_type='sustained'): 
     """Transforms an array of CO2 emissions into radiative forcing with user-
     defined time-step.
     
     emission: an array of emissions, should be same size as years
     years: an array of years at which the emissions take place
-    tstep: time step to be used in the calculations
+    : time step to be used in the calculations
     kind: the type of interpolation to use; can be linear or cubic
+    emiss_type: 'sustained' or 'pulse' - if 'pulse', then the emission values are
+    divided by . this allows a pulse of 1 kg in the first value of the array to
+    represent a full kg of emission, and 1 kg in all values associated with the first
+    year to also represent a full kg when 'sustained'.
     """
 #emission is a series of emission numbers, years should match up with it
     if min(years) > 0:
         years = years - min(years)
     
+    if emiss_type == 'pulse':
+        emission /= tstep
+    
     end = max(years) 
     f = interp1d(years, emission, kind=kind)
-    time = np.linspace(years[0], end, end/tstep + 1)    
+    time = np.linspace(years[0], end, end/ + 1)    
     inter_emissions = f(time)
     atmos = np.resize(fftconvolve(CO2_AR5(time), inter_emissions), time.size) * tstep
     rf = atmos * co2_re
@@ -174,24 +195,33 @@ def CO2_crf(emission, years, tstep=0.01, kind='linear'):
     return crf[fil]
 
 
-def CO2_temp(emission, years, tstep=0.01, kind='linear', source='AR5'): 
+def CO2_temp(emission, years, tstep=0.01, kind='linear', source='AR5', 
+            emiss_type='sustained'): 
     """Transforms an array of CO2 emissions into temperature with user-defined
     time-step. Default temperature IRF is from AR5, use 'Alt_low' or 'Alt_high'
     for a sensitivity test.
     
     emission: an array of emissions, should be same size as years
     years: an array of years at which the emissions take place
-    tstep: time step to be used in the calculations
+    : time step to be used in the calculations
     kind: the type of interpolation to use; can be linear or cubic
     source: the source of parameters for the temperature IRF. default is AR5,
     'Alt', 'Alt_low', and 'Alt_high' are also options.
+    emiss_type: 'sustained' or 'pulse' - if 'pulse', then the emission values are
+    divided by . this allows a pulse of 1 kg in the first value of the array to
+    represent a full kg of emission, and 1 kg in all values associated with the first
+    year to also represent a full kg when 'sustained'.
     """
+#emission is a series of emission numbers, years should match up with it
     if min(years) > 0:
         years = years - min(years)
     
+    if emiss_type == 'pulse':
+        emission /= tstep
+    
     end = max(years)       
     f = interp1d(years, emission, kind=kind, bounds_error=False)
-    time = np.linspace(min(years), end, end/tstep + 1) 
+    time = np.linspace(min(years), end, end/ + 1) 
     inter_emissions = f(time)
     atmos = np.resize(fftconvolve(CO2_AR5(time), inter_emissions), time.size) * tstep
     rf = atmos * co2_re
@@ -226,21 +256,29 @@ def ch42co2(t, alpha=0.51):
 
 
 def CH4_rf(emission, years, tstep=0.01, kind='linear',
-             decay=True):
+             decay=True, emiss_type='sustained'):
     """Transforms an array of methane emissions into radiative forcing with user-defined
     time-step.
     
     emission: an array of emissions, should be same size as years
     years: an array of years at which the emissions take place
-    tstep: time step to be used in the calculations
+    : time step to be used in the calculations
     kind: the type of interpolation to use; can be linear or cubic
+    emiss_type: 'sustained' or 'pulse' - if 'pulse', then the emission values are
+    divided by . this allows a pulse of 1 kg in the first value of the array to
+    represent a full kg of emission, and 1 kg in all values associated with the first
+    year to also represent a full kg when 'sustained'.
     """
+#emission is a series of emission numbers, years should match up with it
     if min(years) > 0:
         years = years - min(years)
     
+    if emiss_type == 'pulse':
+        emission /= tstep
+    
     end = max(years) 
     fch4 = interp1d(years, emission, kind=kind)
-    time = np.linspace(years[0], end, end/tstep + 1)    
+    time = np.linspace(years[0], end, end/ + 1)    
     ch4_inter_emissions = fch4(time)
     ch4_atmos = np.resize(fftconvolve(CH4_AR5(time), ch4_inter_emissions),
                           time.size) * tstep
@@ -261,23 +299,31 @@ def CH4_rf(emission, years, tstep=0.01, kind='linear',
     return rf[fil]
     
 def CH4_rf_cc(emission, years, tstep=0.01, kind='linear',
-             decay=True):
+             decay=True, emiss_type='sustained'):
     """Transforms an array of methane emissions into radiative forcing with user-defined
     time-step, accounting for climate-carbon feedbacks.
     
     emission: an array of emissions, should be same size as years
     years: an array of years at which the emissions take place
-    tstep: time step to be used in the calculations
+    : time step to be used in the calculations
     kind: the type of interpolation to use; can be linear or cubic
+    emiss_type: 'sustained' or 'pulse' - if 'pulse', then the emission values are
+    divided by . this allows a pulse of 1 kg in the first value of the array to
+    represent a full kg of emission, and 1 kg in all values associated with the first
+    year to also represent a full kg when 'sustained'.
     """
     gamma = (44.0/12.0) * 10**12
-    
+
+#emission is a series of emission numbers, years should match up with it
     if min(years) > 0:
         years = years - min(years)
     
+    if emiss_type == 'pulse':
+        emission /= tstep
+    
     end = max(years) 
     fch4 = interp1d(years, emission, kind=kind)
-    time = np.linspace(years[0], end, end/tstep + 1)    
+    time = np.linspace(years[0], end, end/ + 1)    
     ch4_inter_emissions = fch4(time)
     ch4_atmos = np.resize(fftconvolve(CH4_AR5(time), ch4_inter_emissions),
                           time.size) * tstep
@@ -300,23 +346,31 @@ def CH4_rf_cc(emission, years, tstep=0.01, kind='linear',
     
     return rf[fil]
 
-def CH4_rate(emission, years, tstep=0.01, kind='linear'):
+def CH4_rate(emission, years, tstep=0.01, kind='linear', emiss_type='sustained'):
     """Transforms an array of methane emissions into radiative forcing with user-defined
     time-step, accounting for climate-carbon feedbacks.
     
     emission: an array of emissions, should be same size as years
     years: an array of years at which the emissions take place
-    tstep: time step to be used in the calculations
+    : time step to be used in the calculations
     kind: the type of interpolation to use; can be linear or cubic
+    emiss_type: 'sustained' or 'pulse' - if 'pulse', then the emission values are
+    divided by . this allows a pulse of 1 kg in the first value of the array to
+    represent a full kg of emission, and 1 kg in all values associated with the first
+    year to also represent a full kg when 'sustained'.
     """
     gamma = (44.0/12.0) * 10**12
-    
+
+#emission is a series of emission numbers, years should match up with it
     if min(years) > 0:
         years = years - min(years)
     
+    if emiss_type == 'pulse':
+        emission /= tstep
+    
     end = max(years) 
     fch4 = interp1d(years, emission, kind=kind)
-    time = np.linspace(years[0], end, end/tstep + 1)    
+    time = np.linspace(years[0], end, end/ + 1)    
     ch4_inter_emissions = fch4(time)
     ch4_atmos = np.resize(fftconvolve(CH4_AR5(time), ch4_inter_emissions),
                           time.size) * tstep
@@ -339,21 +393,29 @@ def CH4_rate(emission, years, tstep=0.01, kind='linear'):
     return rate[fil]
 
 def CH4_crf(emission, years, tstep=0.01, kind='linear',
-             decay=True):
+             decay=True, emiss_type='sustained'):
     """Transforms an array of methane emissions into radiative forcing with user-defined
     time-step.
     
     emission: an array of emissions, should be same size as years
     years: an array of years at which the emissions take place
-    tstep: time step to be used in the calculations
+    : time step to be used in the calculations
     kind: the type of interpolation to use; can be linear or cubic
+    emiss_type: 'sustained' or 'pulse' - if 'pulse', then the emission values are
+    divided by . this allows a pulse of 1 kg in the first value of the array to
+    represent a full kg of emission, and 1 kg in all values associated with the first
+    year to also represent a full kg when 'sustained'.
     """
+#emission is a series of emission numbers, years should match up with it
     if min(years) > 0:
         years = years - min(years)
     
+    if emiss_type == 'pulse':
+        emission /= tstep
+    
     end = max(years) 
     fch4 = interp1d(years, emission, kind=kind)
-    time = np.linspace(years[0], end, end/tstep + 1)    
+    time = np.linspace(years[0], end, end/ + 1)    
     ch4_inter_emissions = fch4(time)
     ch4_atmos = np.resize(fftconvolve(CH4_AR5(time), ch4_inter_emissions),
                           time.size) * tstep
@@ -366,7 +428,7 @@ def CH4_crf(emission, years, tstep=0.01, kind='linear',
          rf = ch4_atmos * ch4_re + co2_atmos * co2_re
     else:
         rf = ch4_atmos * ch4_re
-    crf = cumtrapz(rf, dx = 1, initial = 0)
+    crf = cumtrapz(rf, dx = tstep, initial = 0)
     fil = np.zeros_like(time, dtype=bool)
     for i in time:
         if i == int(i):
@@ -375,23 +437,31 @@ def CH4_crf(emission, years, tstep=0.01, kind='linear',
     return crf[fil]
 
 def CH4_crf_cc(emission, years, tstep=0.01, kind='linear',
-             decay=True):
+             decay=True, emiss_type='sustained'):
     """Transforms an array of methane emissions into radiative forcing with user-defined
     time-step.
     
     emission: an array of emissions, should be same size as years
     years: an array of years at which the emissions take place
-    tstep: time step to be used in the calculations
+    : time step to be used in the calculations
     kind: the type of interpolation to use; can be linear or cubic
+    emiss_type: 'sustained' or 'pulse' - if 'pulse', then the emission values are
+    divided by . this allows a pulse of 1 kg in the first value of the array to
+    represent a full kg of emission, and 1 kg in all values associated with the first
+    year to also represent a full kg when 'sustained'.
     """
     gamma = (44.0/12.0) * 10**12
 
+#emission is a series of emission numbers, years should match up with it
     if min(years) > 0:
         years = years - min(years)
     
+    if emiss_type == 'pulse':
+        emission /= tstep
+    
     end = max(years) 
     fch4 = interp1d(years, emission, kind=kind)
-    time = np.linspace(years[0], end, end/tstep + 1)    
+    time = np.linspace(years[0], end, end/ + 1)    
     ch4_inter_emissions = fch4(time)
     ch4_atmos = np.resize(fftconvolve(CH4_AR5(time), ch4_inter_emissions),
                           time.size) * tstep
@@ -407,7 +477,7 @@ def CH4_crf_cc(emission, years, tstep=0.01, kind='linear',
          rf = ch4_atmos * ch4_re + (co2_atmos +cc_co2_atmos) * co2_re
     else:
         rf = ch4_atmos * ch4_re + (cc_co2_atmos) * co2_re
-    crf = cumtrapz(rf, dx = 1, initial = 0)
+    crf = cumtrapz(rf, dx = tstep, initial = 0)
     fil = np.zeros_like(time, dtype=bool)
     for i in time:
         if i == int(i):
@@ -416,25 +486,33 @@ def CH4_crf_cc(emission, years, tstep=0.01, kind='linear',
     return crf[fil]
 
 def CH4_temp(emission, years, tstep=0.01, kind='linear', source='AR5',
-             decay=True): 
+             decay=True, emiss_type='sustained'): 
     """Transforms an array of methane emissions into temperature with user-defined
     time-step. Default temperature IRF is from AR5, use 'Alt_low' or 'Alt_high'
     for a sensitivity test.
     
     emission: an array of emissions, should be same size as years
     years: an array of years at which the emissions take place
-    tstep: time step to be used in the calculations
+    : time step to be used in the calculations
     kind: the type of interpolation to use; can be linear or cubic
     source: the source of parameters for the temperature IRF. default is AR5,
     'Alt', 'Alt_low', and 'Alt_high' are also options.
     decay: a boolean variable for if methane decay to CO2 should be included
+    emiss_type: 'sustained' or 'pulse' - if 'pulse', then the emission values are
+    divided by . this allows a pulse of 1 kg in the first value of the array to
+    represent a full kg of emission, and 1 kg in all values associated with the first
+    year to also represent a full kg when 'sustained'.
     """
+#emission is a series of emission numbers, years should match up with it
     if min(years) > 0:
         years = years - min(years)
     
+    if emiss_type == 'pulse':
+        emission /= tstep
+    
     end = max(years) 
     f = interp1d(years, emission, kind=kind)
-    time = np.linspace(years[0], end, end/tstep + 1)    
+    time = np.linspace(years[0], end, end/ + 1)    
     ch4_inter_emissions = f(time)
     ch4_atmos = np.resize(fftconvolve(CH4_AR5(time), ch4_inter_emissions),
                           time.size) * tstep
@@ -463,25 +541,33 @@ def CH4_temp(emission, years, tstep=0.01, kind='linear', source='AR5',
     return temp[fil]
 
 def CH4_cc_tempforrf(emission, years, tstep=0.01, kind='linear', source='AR5',
-             decay=True): 
+             decay=True, emiss_type='sustained'): 
     """Transforms an array of methane emissions into temperature with user-defined
     time-step. Default temperature IRF is from AR5, use 'Alt_low' or 'Alt_high'
     for a sensitivity test.
     
     emission: an array of emissions, should be same size as years
     years: an array of years at which the emissions take place
-    tstep: time step to be used in the calculations
+    : time step to be used in the calculations
     kind: the type of interpolation to use; can be linear or cubic
     source: the source of parameters for the temperature IRF. default is AR5,
     'Alt', 'Alt_low', and 'Alt_high' are also options.
     decay: a boolean variable for if methane decay to CO2 should be included
+    emiss_type: 'sustained' or 'pulse' - if 'pulse', then the emission values are
+    divided by . this allows a pulse of 1 kg in the first value of the array to
+    represent a full kg of emission, and 1 kg in all values associated with the first
+    year to also represent a full kg when 'sustained'.
     """
+#emission is a series of emission numbers, years should match up with it
     if min(years) > 0:
         years = years - min(years)
     
+    if emiss_type == 'pulse':
+        emission /= tstep
+    
     end = max(years) 
     f = interp1d(years, emission, kind=kind)
-    time = np.linspace(years[0], end, end/tstep + 1)    
+    time = np.linspace(years[0], end, end/ + 1)    
     ch4_inter_emissions = f(time)
     ch4_atmos = np.resize(fftconvolve(CH4_AR5(time), ch4_inter_emissions),
                           time.size) * tstep
@@ -510,27 +596,35 @@ def CH4_cc_tempforrf(emission, years, tstep=0.01, kind='linear', source='AR5',
     return temp
 
 def CH4_temp_cc(emission, years, tstep=0.01, kind='linear', source='AR5',
-             decay=True): 
+             decay=True, emiss_type='sustained'): 
     """Transforms an array of methane emissions into temperature with user-defined
     time-step. Default temperature IRF is from AR5, use 'Alt_low' or 'Alt_high'
     for a sensitivity test. Accounts for climate-carbon feedbacks.
     
     emission: an array of emissions, should be same size as years
     years: an array of years at which the emissions take place
-    tstep: time step to be used in the calculations
+    : time step to be used in the calculations
     kind: the type of interpolation to use; can be linear or cubic
     source: the source of parameters for the temperature IRF. default is AR5,
     'Alt', 'Alt_low', and 'Alt_high' are also options.
     decay: a boolean variable for if methane decay to CO2 should be included
+    emiss_type: 'sustained' or 'pulse' - if 'pulse', then the emission values are
+    divided by . this allows a pulse of 1 kg in the first value of the array to
+    represent a full kg of emission, and 1 kg in all values associated with the first
+    year to also represent a full kg when 'sustained'.
     """
     gamma = (44.0/12.0) * 10**12
-    
+
+#emission is a series of emission numbers, years should match up with it
     if min(years) > 0:
         years = years - min(years)
     
+    if emiss_type == 'pulse':
+        emission /= tstep
+    
     end = max(years) 
     f = interp1d(years, emission, kind=kind)
-    time = np.linspace(years[0], end, end/tstep + 1)    
+    time = np.linspace(years[0], end, end/ + 1)    
     ch4_inter_emissions = f(time)
     ch4_atmos = np.resize(fftconvolve(CH4_AR5(time), ch4_inter_emissions),
                           time.size) * tstep
